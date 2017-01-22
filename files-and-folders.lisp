@@ -20,10 +20,9 @@
   (remove-if #'symbolp (pathname-directory path)))
 
 (defun merge-path (path1 path2)
-  (if (null path1)
-      (extract-path path2)
-      (append (extract-path path1)
-              (extract-path path2))))
+  (and path1 path2
+       (append (extract-path path1)
+               (extract-path path2))))
 
 (defun merge-paths (root &rest args)
   "Combines paths assuming all arguments are a subdirectory of root."
