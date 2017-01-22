@@ -5,4 +5,5 @@
         #:peyton-utils)
   (:nicknames #:faf)
   (:export #:list-directory
-           #:merge-pathnames))
+           #:merge-paths
+           #:force-directory))
