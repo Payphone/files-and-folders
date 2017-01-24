@@ -2,22 +2,13 @@
 
 (in-package #:files-and-folders)
 
-(defun force-directory (foldername)
+(defun force-directory (folder)
   "Explicitly sets a path to be a folder."
-  (let* ((folder (pathname foldername))
-         (directory (pathname-directory folder))
-         (name (pathname-name folder)))
-    (if  directory
+  (let ((directory (pathname-directory folder))
+        (name (pathname-name folder)))
+    (if directory
         (make-pathname :directory (if name (snoc name directory) directory))
         (make-pathname :directory (list :RELATIVE name)))))
-
-(defun force-file (filename)
-  "Explicitly sets a path to be a file."
-  (let ((directory (pathname-directory filename)))
-    (if (pathname-name filename)
-        filename
-        (make-pathname :directory (butlast directory)
-                       :name (car (last directory))))))
 
 (defun list-directory (folder)
   "Returns a list of files in the directory."
@@ -25,24 +16,19 @@
    (make-pathname :type :wild :name :wild
                   :directory (pathname-directory (force-directory folder)))))
 
-;; Things we need: the first and last values.
-(defun merge-paths (&rest paths)
-  (let ((first (first paths))
-        (last (car (last paths))))
-    (if (pathname-name last)
-         (make-pathname
-          :directory (append (pathname-directory first)
-                             (remove-if #'symbolp (flatten (mapcar #'pathname-directory
-                                                                   (cdr (butlast paths))))))
-          :name (pathname-name last))
-         (make-pathname
-          :directory (append (pathname-directory first)
-                             (remove-if #'symbolp (flatten (mapcar #'pathname-directory
-                                                                   (cdr paths)))))))))
+(defun extract-path (path)
+  (remove-if #'symbolp (pathname-directory path)))
 
-(defun flatten (lst &optional acc)
-  (if lst
-      (if (consp lst)
-          (flatten (cdr lst) (cons lst acc))
-          (flatten (car lst) acc))
-      acc))
+(defun merge-path (path1 path2)
+  (and path1 path2
+       (append (extract-path path1)
+               (extract-path path2))))
+
+(defun merge-paths (root &rest args)
+  "Combines paths assuming all arguments are a subdirectory of root."
+  (case (length args)
+    (0 root)
+    (1 (merge-pathnames (first args) root))
+    (t (make-pathname :directory (append (pathname-directory (force-directory root))
+                                         (reduce #'merge-path args))
+                      :name (pathname-name (car (last args)))))))
