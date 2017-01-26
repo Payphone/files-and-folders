@@ -1,3 +1,7 @@
+;; files-and-folders.lisp
+
+(in-package :files-and-folders)
+
 (defun force-directory (foldername)
   "Explicitly sets a path to be a folder."
   (let* ((folder (pathname foldername))
