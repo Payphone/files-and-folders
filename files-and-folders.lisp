@@ -26,6 +26,7 @@
                   :directory (pathname-directory (force-directory folder)))))
 
 (defun merge-path (path1 path2)
+  "Concatenates two path names assuming the first is always a directory."
   (make-pathname
    :directory (append (pathname-directory (force-directory path1))
                       (remove-if #'symbolp (pathname-directory path2)))
@@ -33,11 +34,33 @@
    :type (pathname-type path2)))
 
 (defun merge-paths (&rest paths)
+  "Concatenates path names."
   (reduce #'merge-path
           paths))
 
 (defun filep (pathname)
+  "Returns true if the pathname is a file."
   (if (pathname-name pathname) t nil))
 
 (defun folderp (pathname)
+  "Returns true if the pathname is a folder."
   (not (filep pathname)))
+
+(defun list-all-files (directory &key (ignore-dot-files t))
+  "Recursively lists all files inside of a directory."
+  (let (files)
+    (labels ((rec (directory)
+               (cond ((null directory) (reverse files))
+                     ((listp directory) (progn (rec (car directory))
+                                               (rec (cdr directory))))
+                     ((folderp directory)
+                      (if (and ignore-dot-files
+                               (string= (elt0 (last1 (pathname-directory directory))) "."))
+                          nil
+                          (rec (list-directory directory))))
+                     ((filep directory)
+                      (if (and ignore-dot-files
+                               (string= (elt0 (pathname-name directory)) "."))
+                          nil
+                          (push directory files))))))
+      (rec (force-directory directory)))))
