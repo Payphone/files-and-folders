@@ -7,4 +7,6 @@
   (:export #:force-directory
            #:list-directory
            #:merge-path
-           #:merge-paths))
+           #:merge-paths
+           #:filep
+           #:folderp))

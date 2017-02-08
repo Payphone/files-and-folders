@@ -35,3 +35,9 @@
 (defun merge-paths (&rest paths)
   (reduce #'merge-path
           paths))
+
+(defun filep (pathname)
+  (if (pathname-name pathname) t nil))
+
+(defun folderp (pathname)
+  (not (filep pathname)))
