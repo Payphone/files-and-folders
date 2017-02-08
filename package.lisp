@@ -9,4 +9,6 @@
            #:merge-path
            #:merge-paths
            #:filep
-           #:folderp))
+           #:folderp
+           #:list-all-files
+           #:shorten-directory))

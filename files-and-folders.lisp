@@ -64,3 +64,14 @@
                           nil
                           (push directory files))))))
       (rec (force-directory directory)))))
+
+(defun shorten-directory (directory top)
+  (make-pathname :host (pathname-host directory)
+                 :device (pathname-device directory)
+                 :directory
+                 (append (collect #'symbolp (pathname-directory directory))
+                         (remove-until top (pathname-directory directory)
+                                       :test #'string=))
+                 :name (pathname-name directory)
+                 :type (pathname-type directory)
+                 :version (pathname-version directory)))
