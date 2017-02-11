@@ -46,24 +46,26 @@
   "Returns true if the pathname is a folder."
   (not (filep pathname)))
 
-(defun list-all-files (directory &key (ignore-dot-files t))
+(defun list-all-files (directory &key (ignore-dot-files t) (max-depth nil)
+                                   (include-directories t))
   "Recursively lists all files inside of a directory."
   (let (files)
-    (labels ((rec (directory)
-               (cond ((null directory) (reverse files))
-                     ((listp directory) (progn (rec (car directory))
-                                               (rec (cdr directory))))
+    (labels ((rec (directory depth)
+               (cond ((or (null directory) (if max-depth (> depth max-depth)))
+                      (reverse files))
+                     ((listp directory)
+                      (rec (car directory) depth)
+                      (rec (cdr directory) depth))
                      ((folderp directory)
-                      (if (and ignore-dot-files
-                               (string= (elt0 (last1 (pathname-directory directory))) "."))
-                          nil
-                          (rec (list-directory directory))))
+                      (unless (and ignore-dot-files
+                                   (char= (elt0 (last1 (pathname-directory directory))) #\.))
+                        (and include-directories (= depth (1- max-depth)) (push directory files))
+                        (rec (list-directory directory) (1+ depth))))
                      ((filep directory)
-                      (if (and ignore-dot-files
-                               (string= (elt0 (pathname-name directory)) "."))
-                          nil
-                          (push directory files))))))
-      (rec (force-directory directory)))))
+                      (unless (and ignore-dot-files
+                                   (char= (elt0 (pathname-name directory)) #\.))
+                        (push directory files))))))
+      (rec (force-directory directory) -1))))
 
 (defun shorten-directory (directory top)
   (make-pathname :host (pathname-host directory)
