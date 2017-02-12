@@ -51,7 +51,7 @@
   "Recursively lists all files inside of a directory."
   (let (files)
     (labels ((rec (directory depth)
-               (cond ((or (null directory) (if max-depth (> depth max-depth)))
+               (cond ((or (null directory) (and max-depth (> depth max-depth)))
                       (reverse files))
                      ((listp directory)
                       (rec (car directory) depth)
@@ -59,12 +59,17 @@
                      ((folderp directory)
                       (unless (and ignore-dot-files
                                    (char= (elt0 (last1 (pathname-directory directory))) #\.))
-                        (and include-directories (= depth (1- max-depth)) (push directory files))
+                        (when include-directories
+                          (if max-depth
+                              (and (= depth (1- max-depth)) (push directory files))
+                              (push directory files)))
                         (rec (list-directory directory) (1+ depth))))
                      ((filep directory)
                       (unless (and ignore-dot-files
                                    (char= (elt0 (pathname-name directory)) #\.))
-                        (push directory files))))))
+                        (if max-depth
+                          (and (= depth (1- max-depth)) (push directory files))
+                          (push directory files)))))))
       (rec (force-directory directory) -1))))
 
 (defun shorten-directory (directory top)
