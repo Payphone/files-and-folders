@@ -58,7 +58,10 @@
                       (rec (cdr directory) depth))
                      ((folderp directory)
                       (unless (and ignore-dot-files
-                                   (char= (elt0 (last1 (pathname-directory directory))) #\.))
+                                   (char=
+                                    (first-elt (lastcar (pathname-directory
+                                                         directory)))
+                                    #\.))
                         (when include-directories
                           (if max-depth
                               (and (= depth (1- max-depth)) (push directory files))
@@ -82,3 +85,11 @@
                  :name (pathname-name directory)
                  :type (pathname-type directory)
                  :version (pathname-version directory)))
+
+(defun escape-shell-string (string)
+  (let ((special-characters '(#\* #\? #\[ #\] #\' #\" #\\ #\$ #\; #\& #\( #\) #\|
+                              #\^ #\< #\> #\Newline #\Space #\Tab)))
+    (coerce (loop for char across string
+               when (member char special-characters)
+               collect #\\
+               collect char) 'string)))

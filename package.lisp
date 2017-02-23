@@ -2,10 +2,12 @@
 
 (defpackage #:files-and-folders
   (:use #:cl
-        #:peyton-utils)
+        #:peyton-utils
+        #:alexandria)
   (:nicknames #:faf)
   (:export #:force-directory
            #:list-directory
+           #:escape-shell-string
            #:merge-path
            #:merge-paths
            #:filep
