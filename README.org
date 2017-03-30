@@ -1,0 +1,10 @@
+* Files and Folders
+Makes path names less painful.
+
+** Installation
+Assuming you have [[https://www.quicklisp.org/beta/][Quicklisp]] installed you
+can run the following:
+#+BEGIN_SRC sh
+git clone https://github.com/Payphone/files-and-folders.git
+mv files-and-folders ~/quicklisp/local-projects/
+#+END_SRC
